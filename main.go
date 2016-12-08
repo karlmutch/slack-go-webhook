@@ -1,12 +1,5 @@
 package slack
 
-import (
-	"fmt"
-	"log"
-
-	"github.com/parnurzeal/gorequest"
-)
-
 type Field struct {
 	Title string `json:"title"`
 	Value string `json:"value"`
@@ -29,7 +22,15 @@ type Attachment struct {
 	FooterIcon *string  `json:"footer_icon"`
 }
 
-type Payload struct {
+// Message is used to marshal a JSON data structure for use with the Slack
+// webhook interface.  Messages use UTF-8. Be sure to make use of URL escapes for
+// the ampersand (&amp;), less than (&lt;) and greater than (&gt;) signs.a Do NOT
+// HTML entity escape the entire set of characters.
+//
+// Message formatting is documented at the following URL,
+// https://api.slack.com/docs/message-formatting
+//
+type Message struct {
 	Parse       string       `json:"parse,omitempty"`
 	Username    string       `json:"username,omitempty"`
 	IconUrl     string       `json:"icon_url,omitempty"`
@@ -37,32 +38,4 @@ type Payload struct {
 	Channel     string       `json:"channel,omitempty"`
 	Text        string       `json:"text,omitempty"`
 	Attachments []Attachment `json:"attachments,omitempty"`
-}
-
-func (attachment *Attachment) AddField(field Field) *Attachment {
-	attachment.Fields = append(attachment.Fields, &field)
-	return attachment
-}
-
-func redirectPolicyFunc(req gorequest.Request, via []gorequest.Request) error {
-	return fmt.Errorf("Incorrect token (redirection)")
-}
-
-func Send(webhookUrl string, proxy string, payload Payload) []error {
-	request := gorequest.New().Proxy(proxy)
-	resp, _, err := request.
-		Post(webhookUrl).
-		RedirectPolicy(redirectPolicyFunc).
-		Send(payload).
-		End()
-
-	if err != nil {
-		log.Fatal(err)
-		return err
-	}
-	if resp.StatusCode >= 400 {
-		return []error{fmt.Errorf("Error sending msg. Status: %v", resp.Status)}
-	}
-
-	return nil
 }
