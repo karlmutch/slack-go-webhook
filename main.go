@@ -16,6 +16,7 @@ type Attachment struct {
 	Title       *string  `json:"title"`
 	TitleLink   *string  `json:"title_link"`
 	Text        *string  `json:"text"`
+	Timestamp   *int64   `json:"ts"`
 	UnfurlLinks *bool    `json:"unfurl_links"`
 	UnfurlMedia *bool    `json:"unfurl_media"`
 	ImageUrl    *string  `json:"image_url"`
